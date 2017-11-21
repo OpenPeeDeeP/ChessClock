@@ -1,10 +1,13 @@
+CC_VERSION=v0.0.1
+CCD_VERSION=v0.0.1
+
 build: proto build_cc build_ccd
 
 build_cc:
-	@go build -o build/cc ./cmd/cc
+	@go build -ldflags "-X main.version=${CC_VERSION}" -o build/cc ./cmd/cc
 
 build_ccd:
-	@go build -o build/ccd ./cmd/ccd
+	@go build -ldflags "-X main.version=${CCD_VERSION}" -o build/ccd ./cmd/ccd
 
 build_clean:
 	@rm -r build

@@ -8,6 +8,7 @@ service ChessClock {
   rpc Tally(TallyRequest) returns (TallyResponse) {}
   rpc ListTimeSheets(ListTimeSheetsRequest) returns (ListTimeSheetsResponse) {}
   rpc ListTags(ListTagsRequest) returns (ListTagsResponse) {}
+  rpc Version(VersionRequest) returns (VersionResponse) {}
 }
 
 message StartRequest {
@@ -70,4 +71,11 @@ message ListTagsRequest {
 
 message ListTagsResponse {
   repeated string tags = 1; //List of tags for the date requested
+}
+
+//Empty request but useful if we need parameters later.
+message VersionRequest {}
+
+message VersionResponse {
+  string version = 1;     //Version of the Daemon
 }
