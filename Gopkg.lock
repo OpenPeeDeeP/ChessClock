@@ -8,6 +8,12 @@
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/ianschenck/envflag"
+  packages = ["."]
+  revision = "9111d830d133f952887a936367fb0211c3134f0d"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -58,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7065d99fe1cc85781d1607b7b617233e9d80b09bfcbadafcb2d89b8bdd10a157"
+  inputs-digest = "f88b28204f804a9e11df4d5f0318d3670db13737bec8aa7b1a714f692a937944"
   solver-name = "gps-cdcl"
   solver-version = 1

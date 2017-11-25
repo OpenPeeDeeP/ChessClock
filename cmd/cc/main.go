@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/OpenPeeDeeP/chessclock/chessclock"
+	"github.com/ianschenck/envflag"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -17,16 +18,21 @@ import (
 
 var version string
 
-var connection *grpc.ClientConn
-var client chessclock.ChessClockClient
-var mainLogger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+var (
+	connection      *grpc.ClientConn
+	client          chessclock.ChessClockClient
+	mainLogger      = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	daemonConString string
+)
 
 func init() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	rootCmd.AddCommand(startCmd, stopCmd, tagsCmd, sheetsCmd, scheduleCmd, tallyCmd)
+	envflag.StringVar(&daemonConString, "CCD_CONNECTION_STRING", "localhost:4242", "Connection string to the daemon")
 }
 
 func main() {
+	envflag.Parse()
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -35,7 +41,8 @@ func main() {
 func startClient(log zerolog.Logger) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		var err error
-		connection, err = grpc.Dial("localhost:4242", grpc.WithInsecure())
+		log.Debug().Str("con", daemonConString).Msg("Connecting to daemon")
+		connection, err = grpc.Dial(daemonConString, grpc.WithInsecure())
 		if err != nil {
 			log.Error().Err(err).Msg("Could not connect to the daemon")
 			return err
@@ -46,6 +53,7 @@ func startClient(log zerolog.Logger) func(cmd *cobra.Command, args []string) err
 }
 
 func stopClient(cmd *cobra.Command, args []string) error {
+	log.Debug().Msg("Disconnecting from the daemon")
 	return connection.Close()
 }
 

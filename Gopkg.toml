@@ -32,3 +32,7 @@
 [[constraint]]
   name = "google.golang.org/grpc"
   version = "1.7.3"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/ianschenck/envflag"
