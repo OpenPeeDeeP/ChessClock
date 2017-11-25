@@ -12,11 +12,11 @@ import (
 
 //ChessClockDaemon is the daemon that handles tasks
 type ChessClockDaemon struct {
-	store cc.ChessClockStore
+	store cc.Storer
 }
 
 //NewDaemon creates a new daemon using the specified store
-func NewDaemon(store cc.ChessClockStore) *ChessClockDaemon {
+func NewDaemon(store cc.Storer) *ChessClockDaemon {
 	return &ChessClockDaemon{
 		store: store,
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 
+	cc "github.com/OpenPeeDeeP/chessclock"
 	"github.com/OpenPeeDeeP/chessclock/chessclock"
 	"github.com/ianschenck/envflag"
 	"github.com/rs/zerolog/log"
@@ -24,6 +25,7 @@ func main() {
 		log.Error().Str("con", daemonConString).Msg("failed to listen")
 	}
 	grpcServer := grpc.NewServer()
-	chessclock.RegisterChessClockServer(grpcServer, &ChessClockDaemon{})
+	ccd := NewDaemon(&cc.NilStore{})
+	chessclock.RegisterChessClockServer(grpcServer, ccd)
 	grpcServer.Serve(lis)
 }
