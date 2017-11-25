@@ -17,14 +17,16 @@ import (
 
 //FileStore does absolutly nothing to store the logs
 type FileStore struct {
-	xdg *xdg.XDG
+	xdg      *xdg.XDG
+	maxFiles int
 }
 
 //NewFileStore creates a new file store based on vendor and application name
-func NewFileStore(vendor, application string) *FileStore {
+func NewFileStore(vendor, application string, maxFiles int) *FileStore {
 	x := xdg.New(vendor, application)
 	return &FileStore{
-		xdg: x,
+		xdg:      x,
+		maxFiles: maxFiles,
 	}
 }
 
@@ -152,7 +154,7 @@ func (s *FileStore) rotateFiles() error {
 	if err != nil {
 		return err
 	}
-	for len(files) > 5 {
+	for len(files) > s.maxFiles {
 		sortedFiles, err := parseFiles(files)
 		if err != nil {
 			return err
