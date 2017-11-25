@@ -24,6 +24,6 @@ func main() {
 		log.Error().Str("con", daemonConString).Msg("failed to listen")
 	}
 	grpcServer := grpc.NewServer()
-	chessclock.RegisterChessClockServer(grpcServer, &ChessClockDameon{})
+	chessclock.RegisterChessClockServer(grpcServer, &ChessClockDaemon{})
 	grpcServer.Serve(lis)
 }
