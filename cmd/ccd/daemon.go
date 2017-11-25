@@ -39,7 +39,10 @@ func (ccd *ChessClockDaemon) Start(ctx context.Context, req *chessclock.StartReq
 
 //Stop will stop the previous task
 func (ccd *ChessClockDaemon) Stop(ctx context.Context, req *chessclock.StopRequest) (*chessclock.StopResponse, error) {
-	err := ccd.store.Stop(req.GetReason())
+	if req.GetTimestamp() == 0 {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Must specify a timestamp")
+	}
+	err := ccd.store.Stop(req.GetTimestamp(), req.GetReason())
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}

@@ -11,7 +11,7 @@ func (s *NilStore) Start(timestamp int64, tag, description string) error {
 }
 
 //Stop does absolutly nothing
-func (s *NilStore) Stop(reason chessclock.StopRequest_Reason) error {
+func (s *NilStore) Stop(timestamp int64, reason chessclock.StopRequest_Reason) error {
 	return nil
 }
 

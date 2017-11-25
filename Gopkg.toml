@@ -36,3 +36,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/ianschenck/envflag"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/OpenPeeDeeP/xdg"

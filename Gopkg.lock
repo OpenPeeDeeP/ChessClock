@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/OpenPeeDeeP/xdg"
+  packages = ["."]
+  revision = "8d747087fa4fbc3b1dcdd531ab65021e01bcecf4"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto","ptypes","ptypes/any","ptypes/duration","ptypes/timestamp"]
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
@@ -64,6 +70,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f88b28204f804a9e11df4d5f0318d3670db13737bec8aa7b1a714f692a937944"
+  inputs-digest = "5130c6847aa7c89ed5e0d6f5ef335de727e9e746685808ef974f99610c0e7493"
   solver-name = "gps-cdcl"
   solver-version = 1

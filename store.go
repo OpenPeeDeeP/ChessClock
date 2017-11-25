@@ -87,7 +87,7 @@ type StopEvent struct {
 //Storer is any type that can store the event logs and return them
 type Storer interface {
 	Start(timestamp int64, tag, description string) error
-	Stop(reason chessclock.StopRequest_Reason) error
+	Stop(timestamp int64, reason chessclock.StopRequest_Reason) error
 	TimeSheets() ([]int64, error)
 	Events(date int64) ([]*Event, error)
 }

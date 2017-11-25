@@ -26,7 +26,8 @@ message StopRequest {
     Lunch = 1;              //Mark the reason as a lunch break
     EndOfDay = 2;           //Mark the reason as it is the end of the day
   }
-  Reason reason = 1;        //OPTIONAL:   Reason for stopping the previous task.
+  int64 timestamp = 1;      //REQUIRED:   Time of the stop event
+  Reason reason = 2;        //OPTIONAL:   Reason for stopping the previous task.
 }
 
 //Empty response but useful if we need a resposne later.

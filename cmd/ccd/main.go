@@ -25,7 +25,7 @@ func main() {
 		log.Error().Str("con", daemonConString).Msg("failed to listen")
 	}
 	grpcServer := grpc.NewServer()
-	ccd := NewDaemon(&cc.NilStore{})
+	ccd := NewDaemon(cc.NewFileStore("OpenPeeDeeP", "ChessClock"))
 	chessclock.RegisterChessClockServer(grpcServer, ccd)
 	grpcServer.Serve(lis)
 }

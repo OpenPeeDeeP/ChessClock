@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/OpenPeeDeeP/chessclock/chessclock"
 	"github.com/spf13/cobra"
@@ -29,7 +30,8 @@ func init() {
 
 func stopCmdRun(cmd *cobra.Command, args []string) error {
 	_, err := client.Stop(context.Background(), &chessclock.StopRequest{
-		Reason: reasons[strings.ToLower(args[0])],
+		Timestamp: time.Now().Unix(),
+		Reason:    reasons[strings.ToLower(args[0])],
 	})
 	if err != nil {
 		stopLogger.Error().Err(err).Msg("Could not stop the previous task")
