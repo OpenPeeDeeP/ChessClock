@@ -32,7 +32,6 @@ func init() {
 
 func rootCmdRun(cmd *cobra.Command, args []string) error {
 	if showVersion {
-		fmt.Printf("CLI version: %s\n", version)
 		startClient(rootLogger)(cmd, args)
 		defer stopClient(cmd, args)
 		ver, err := client.Version(context.Background(), &chessclock.VersionRequest{})
@@ -40,6 +39,7 @@ func rootCmdRun(cmd *cobra.Command, args []string) error {
 			rootLogger.Error().Err(err).Msg("Could not get version of the daemon")
 			return err
 		}
+		fmt.Printf("CLI version: %s\n", version)
 		fmt.Printf("Daemon version: %s\n", ver.GetVersion())
 		return nil
 	}
