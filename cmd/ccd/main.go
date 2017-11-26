@@ -2,6 +2,9 @@ package main
 
 import (
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	cc "github.com/OpenPeeDeeP/chessclock"
 	"github.com/OpenPeeDeeP/chessclock/chessclock"
@@ -30,5 +33,21 @@ func main() {
 	grpcServer := grpc.NewServer()
 	ccd := NewDaemon(cc.NewFileStore("OpenPeeDeeP", "ChessClock", maxFiles))
 	chessclock.RegisterChessClockServer(grpcServer, ccd)
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+	)
+	go func() {
+		s := <-sigc
+		switch s {
+		case syscall.SIGTERM:
+			grpcServer.Stop()
+		default:
+			grpcServer.GracefulStop()
+		}
+	}()
 	grpcServer.Serve(lis)
 }
