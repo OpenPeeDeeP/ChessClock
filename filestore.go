@@ -36,9 +36,14 @@ func (s *FileStore) Start(timestamp int64, tag, description string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	w.Write([]string{"START", strconv.FormatInt(timestamp, 10), tag, description})
-	w.Flush()
+	defer func() {
+		w.Flush()
+		file.Close()
+	}()
+	err = w.Write([]string{"START", strconv.FormatInt(timestamp, 10), strings.ToUpper(tag), description})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -48,9 +53,14 @@ func (s *FileStore) Stop(timestamp int64, reason chessclock.StopRequest_Reason) 
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	w.Write([]string{"STOP", strconv.FormatInt(timestamp, 10), reason.String()})
-	w.Flush()
+	defer func() {
+		w.Flush()
+		file.Close()
+	}()
+	err = w.Write([]string{"STOP", strconv.FormatInt(timestamp, 10), reason.String()})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -67,9 +77,6 @@ func (s *FileStore) TimeSheets() ([]int64, error) {
 func (s *FileStore) Events(date int64) ([]*Event, error) {
 	file, r, err := s.createReadFile(date)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	defer file.Close()
@@ -127,12 +134,16 @@ func (s *FileStore) createWriteFile(timestamp int64) (*os.File, *csv.Writer, err
 		}
 	}
 	fp := s.logPath(timestamp)
-	file, err := os.OpenFile(fp, os.O_CREATE|os.O_APPEND, 0600)
+	file, err := os.OpenFile(fp, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, nil, err
 	}
 	w := csv.NewWriter(file)
 	w.Comma = '\t'
+	err = s.rotateFiles()
+	if err != nil {
+		return nil, nil, err
+	}
 	return file, w, nil
 }
 
@@ -172,7 +183,7 @@ func (s *FileStore) rotateFiles() error {
 }
 
 func (s *FileStore) logPath(timestamp int64) string {
-	return filepath.Join(s.logDir(), time.Unix(timestamp, 0).Format("2006_01_02")+".log")
+	return filepath.Join(s.logDir(), time.Unix(timestamp, 0).UTC().Format("2006_01_02")+".log")
 }
 
 func (s *FileStore) logDir() string {
@@ -189,11 +200,11 @@ func parseFiles(files []os.FileInfo) ([]int64, error) {
 	times := make([]int64, 0, len(files))
 	for _, file := range files {
 		fileParts := strings.Split(file.Name(), ".")
-		t, err := time.Parse("2006_01_02", fileParts[0])
+		date, err := time.Parse("2006_01_02", fileParts[0])
 		if err != nil {
 			return nil, err
 		}
-		times = append(times, t.Unix())
+		times = append(times, date.Unix())
 	}
 	fr := fileRange(times)
 	sort.Sort(fr)

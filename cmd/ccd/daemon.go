@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -56,6 +58,9 @@ func (ccd *ChessClockDaemon) Schedule(ctx context.Context, req *chessclock.Sched
 	}
 	events, err := ccd.store.Events(req.GetDate())
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, grpc.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	schedule := getSchedule(events)
@@ -71,6 +76,9 @@ func (ccd *ChessClockDaemon) Tally(ctx context.Context, req *chessclock.TallyReq
 	}
 	events, err := ccd.store.Events(req.GetDate())
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, grpc.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	tally := getTally(events)
@@ -83,6 +91,9 @@ func (ccd *ChessClockDaemon) Tally(ctx context.Context, req *chessclock.TallyReq
 func (ccd *ChessClockDaemon) ListTimeSheets(ctx context.Context, req *chessclock.ListTimeSheetsRequest) (*chessclock.ListTimeSheetsResponse, error) {
 	timeSheets, err := ccd.store.TimeSheets()
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, grpc.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	return &chessclock.ListTimeSheetsResponse{
@@ -97,6 +108,9 @@ func (ccd *ChessClockDaemon) ListTags(ctx context.Context, req *chessclock.ListT
 	}
 	events, err := ccd.store.Events(req.GetDate())
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, grpc.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	tags := getTags(events)
@@ -145,7 +159,9 @@ func getTally(events []*cc.Event) []*chessclock.TallyResponse_Task {
 				tags[prevTag] = append(tags[prevTag], e.StartTime)
 			}
 			tags[e.Tag] = append(tags[e.Tag], e.StartTime)
-			description[e.Tag] = e.Description
+			if e.Description != "" {
+				description[e.Tag] = e.Description
+			}
 			prevTag = e.Tag
 		}
 		if event.IsStop() {
@@ -159,13 +175,20 @@ func getTally(events []*cc.Event) []*chessclock.TallyResponse_Task {
 	}
 	tagSpans := make([]*chessclock.TallyResponse_Task, 0, len(tags))
 	for tag, times := range tags {
+		if tag == chessclock.StopRequest_EndOfDay.String() {
+			tagSpans = append(tagSpans, &chessclock.TallyResponse_Task{
+				Timespan: 0,
+				Tag:      tag,
+			})
+			continue
+		}
 		if len(times)%2 == 1 {
-			times = times[:len(times)-1]
+			times = append(times, time.Now().Unix())
 		}
 		var prevTime int64
 		var totalTime int64
 		for i, time := range times {
-			if i%2 == 1 {
+			if i%2 == 0 {
 				prevTime = time
 			} else {
 				totalTime += time - prevTime
@@ -190,12 +213,6 @@ func getTags(events []*cc.Event) []string {
 			e := event.MustGetStartDetails()
 			if _, ok := tags[e.Tag]; !ok {
 				tags[e.Tag] = struct{}{}
-			}
-		}
-		if event.IsStop() {
-			e := event.MustGetStopDetails()
-			if _, ok := tags[e.Reason.String()]; !ok {
-				tags[e.Reason.String()] = struct{}{}
 			}
 		}
 	}

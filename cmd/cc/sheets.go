@@ -27,7 +27,7 @@ func sheetsCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	for _, sheet := range sheets.GetDates() {
-		date := time.Unix(sheet, 0)
+		date := time.Unix(sheet, 0).UTC()
 		fmt.Printf("%04d/%02d/%02d\n", date.Year(), date.Month(), date.Day())
 	}
 	return nil

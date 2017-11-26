@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"text/tabwriter"
 	"time"
 
@@ -43,10 +44,15 @@ func tallyCmdRun(cmd *cobra.Command, args []string) error {
 	}
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	defer w.Flush()
-	fmt.Fprint(w, "DURATION\tTAG\tDESCRIPTION")
+	fmt.Fprint(w, "DURATION\tTAG\tDESCRIPTION\n")
 	for _, tally := range res.GetTasks() {
-		ts := time.Duration(tally.GetTimespan())
-		fmt.Fprintf(w, "%v\t%s\t%s", ts, tally.GetTag(), tally.GetDescription())
+		durString := strconv.FormatInt(tally.GetTimespan(), 10) + "s"
+		ts, err := time.ParseDuration(durString)
+		if err != nil {
+			tallyLogger.Error().Err(err).Msg("Could not parse timespan")
+			return err
+		}
+		fmt.Fprintf(w, "%v\t%s\t%s\n", ts, tally.GetTag(), tally.GetDescription())
 	}
 	return nil
 }

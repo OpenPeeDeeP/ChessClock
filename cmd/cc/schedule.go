@@ -43,10 +43,10 @@ func scheduleCmdRun(cmd *cobra.Command, args []string) error {
 	}
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	defer w.Flush()
-	fmt.Fprint(w, "TIME(UTC)\tTAG\tDESCRIPTION")
+	fmt.Fprint(w, "TIME(UTC)\tTAG\tDESCRIPTION\n")
 	for _, task := range res.GetTasks() {
-		tm := time.Unix(task.GetTimestamp(), 0)
-		fmt.Fprintf(w, "%s\t%s\t%s", tm.Format("15:04:05"), task.GetTag(), task.GetDescription())
+		tm := time.Unix(task.GetTimestamp(), 0).UTC()
+		fmt.Fprintf(w, "%s\t%s\t%s\n", tm.Format("15:04:05"), task.GetTag(), task.GetDescription())
 	}
 	return nil
 }
